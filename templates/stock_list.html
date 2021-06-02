@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Stock Picker
+{% endblock %}
+{% block css %}
+<style>
+    select {
+        height: 250px;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="container">
+    <h1>Live Stock Tracker</h1>
+    <p>Select The Stocks</p>
+    <form action="/stocks">
+        <label for="stockpicker">Select Stocks</label>
+        <select class="form-select form-select-lg nb-3" multiple aria-label="multiple select example" name="stockpicker"
+            id='selectStocks'>
+            {% for stock in stocks %}
+            <option value={{stock}}>{{stock}}</option>
+            {% endfor %}
+
+        </select>
+        <br>
+        <div class="d-grid gap-2">
+            <input class="btn btn-primary" type="submit" value="Submit">
+        </div>
+    </form>
+
+</div>
+{% endblock %}
+{% block script %}
+<!-- <script>
+    var socket = new WebSocket('ws://' + window.location.host + '/stockdata/?token=e1e0a754207f9603f061dc90dab5ee367a0e4d95');
+
+    socket.onopen = function open() {
+        // console.log('WebSockets connection created.');
+    };
+
+    if (socket.readyState == WebSocket.OPEN) {
+        socket.onopen();
+    }
+    // Get data on opening socket
+    socket.onmessage = function (event) {
+        console.log(event.data);
+        var table = document.createElement('table');
+        var socket_data = event.data
+        var socket_data = JSON.parse(event.data)
+        console.log(socket_data)
+        var select = document.getElementById("selectStocks");
+        var options = socket_data.stocks
+        for (var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        }
+    }
+</script> -->
+
+{% endblock %}

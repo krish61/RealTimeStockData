@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Stock Tracker
+{% endblock %}
+{% block css %}
+<style>
+    .red {
+        color: red;
+    }
+
+    .green {
+        color: green;
+    }
+</style>
+{% endblock %}
+{% block body %}
+<div class="container">
+    <h1>Live Stock Tracker</h1>
+    <table class="table container">
+        <table class="table" id="tableid">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Previous Close</th>
+                    <th scope="col">Open</th>
+                    <th scope="col">Change</th>
+                    <th scope="col">Market Cap</th>
+                    <th scope="col">Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stock in user_selected_stocks %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{stock}}</td>
+                    <td id="{{stock}}_price"></td>
+                    <td id="{{stock}}_prevprice"></td>
+                    <td id="{{stock}}_open"></td>
+                    <td id="{{stock}}_change"></td>
+                    <td id="{{stock}}_cap"></td>
+                    <td id="{{stock}}_vol"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </table>
+</div>
+<!-- <div id='target_div'>
+
+</div> -->
+{% endblock %}
+{% block script %}
+<script>
+    var querystring = window.location.search;
+    querystring = querystring.substring(1);
+    console.log(querystring)
+    var socket = new WebSocket('ws://' + window.location.host + '/stockdata/?token=e1e0a754207f9603f061dc90dab5ee367a0e4d95&' + querystring);
+
+    socket.onopen = function open() {
+        console.log('WebSockets connection created.');
+    };
+
+    if (socket.readyState == WebSocket.OPEN) {
+        socket.onopen();
+    }
+
+    socket.onmessage = function (event) {
+        // console.log(event.data);
+        var result = JSON.parse(event.data.replace(/\bNaN\b/g, "null"));
+        // console.log(result)
+        for (const [key, value] of Object.entries(result)) {
+            var price = Number((value['Quote Price']).toFixed(4));
+            var prevprice = Number((value['Previous Close']).toFixed(4));
+            document.getElementById(key + '_price').innerHTML = price;
+            document.getElementById(key + '_prevprice').innerHTML = prevprice;
+            document.getElementById(key + '_open').innerHTML = value['Open'];
+            document.getElementById(key + '_cap').innerHTML = value['Market Cap'];
+            document.getElementById(key + '_vol').innerHTML = value['Volume'];
+            // console.log(price - prevprice)
+            var change = price - prevprice;
+            change = Number((change).toFixed(4));
+            if (change > 0) {
+                document.getElementById(key + '_change').className = "green";
+                document.getElementById(key + '_change').innerHTML = "+" + change;
+            }
+            else if (change < 0) {
+                document.getElementById(key + '_change').className = "red";
+                document.getElementById(key + '_change').innerHTML = change;
+            }
+
+        }
+
+        // var table = document.getElementById('tableid');
+        // while (table.rows.length > 1) {
+        //     table.deleteRow(1);
+        // }
+        // result.map((item, index) => {
+        //     console.log(item)
+        //     var tr = document.createElement('tr');
+        //     var td1 = document.createElement('td');
+        //     var td2 = document.createElement('td');
+        //     var td3 = document.createElement('td');
+        //     var text1 = document.createTextNode(index);
+        //     var text2 = document.createTextNode(item.name);
+        //     var text3 = document.createTextNode(item["Quote Price"]);
+        //     td1.appendChild(text1);
+        //     td2.appendChild(text2);
+        //     td3.appendChild(text3);
+        //     tr.appendChild(td1);
+        //     tr.appendChild(td2);
+        //     tr.appendChild(td3);
+        //     table.appendChild(tr);
+        // })
+        // document.body.appendChild(table);
+    }
+
+
+</script>
+{% endblock %}
